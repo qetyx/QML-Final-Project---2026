@@ -10,8 +10,8 @@ library(brms)
 library(tidyverse)
 library(ggplot2)
 
-Exp1 <- read.table("../QML-2026/data/Form-Based_FinalProj/Exp1.txt", header = TRUE)
-Exp2 <- read.table("../QML-2026/data/Form-Based_FinalProj/Exp2.txt", header = TRUE)
+Exp1 <- read.table("data/Form-Based_FinalProj/Exp1.txt", header = TRUE)
+Exp2 <- read.table("data/Form-Based_FinalProj/Exp2.txt", header = TRUE)
 
 # Experiment two pulls more attention in our analysis as it is more comprehensive, building off of experiment one. Experiment two ensured that participants were familiar with the words beforehand, aiming to avoid any misreading of the target words
 ```
