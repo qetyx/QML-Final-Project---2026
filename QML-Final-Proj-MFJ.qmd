@@ -1,0 +1,108 @@
+---
+title: "FinalProjWIPDoc"
+author: "MFJ"
+format: pdf
+---
+##Housekeeping
+```{r}
+#| label: Housekeeping Code
+library(brms)
+library(tidyverse)
+library(ggplot2)
+
+Exp1 <- read.table("../QML-2026/data/Form-Based_FinalProj/Exp1.txt", header = TRUE)
+Exp2 <- read.table("../QML-2026/data/Form-Based_FinalProj/Exp2.txt", header = TRUE)
+
+# Experiment two pulls more attention in our analysis as it is more comprehensive, building off of experiment one. Experiment two ensured that participants were familiar with the words beforehand, aiming to avoid any misreading of the target words
+```
+
+##Exp 1 Analysis Code
+```{r}
+Exp1$Response <- ordered(Exp1$Response, levels = 1:7)
+
+Exp1_bm <- brm(
+  formula = Response ~ WordType + (1 | Subject) + (1 | Item),
+  #Note the "(1 | ___) for Subject and Item denotes a random intercept for each participant and item, essentially grouping each participant's responses together. The intercepts are random as R calculates the intercept for each subject and item individually.
+  family = cumulative(link = "logit"),
+  data = Exp1,
+  seed = 1272,
+  file = "./data/Form-Based_FinalProj/Exp1_bm"
+)
+
+summary(Exp1_bm)
+
+pp_check(Exp1_bm)
+
+conditional_effects(Exp1_bm)
+#Note: Attractor is the reference category in WordType, so other values will be compared with it. In summary, because the other values are negative, sentences containing an Attractor word (words more iconically associated with the novel word) were more highly rated.
+```
+
+##Exp 2 Analysis Code
+```{r}
+Exp2_Analysis <- Exp2 |>
+  filter(Accuracy == 1, Confusion == 0)
+
+Exp2_Analysis$Rating <- ordered(Exp2_Analysis$Rating, levels = 1:7)
+
+Exp2_bm <- brm(
+  formula = Rating ~ WordType + (1 | Subject) + (1 | Item),
+  family = cumulative(link = "logit"),
+  data = Exp2_Analysis,
+  seed = 1272,
+  file = "./data/Form-Based_FinalProj/Exp2_bm"
+)
+
+summary(Exp2_bm)
+
+pp_check(Exp2_bm)
+
+conditional_effects(Exp2_bm)
+```
+
+##Exp 1 Plotting Code
+```{r}
+Exp1 |>
+  ggplot(aes(WordType, as.numeric(Response))) +
+  geom_jitter(width = 0.3, height = 0.25, size = 0.75, alpha = 0.5) +
+  
+  geom_violin(alpha = 0.2, linewidth = 0.4, color = "black", fill = "red") +
+  
+  geom_boxplot(alpha = 0.2, width = 0.2, color = "black", fill = "green") +
+  
+  scale_y_continuous(
+    breaks = 1:7
+  ) +
+  
+  labs(
+    x = "Word Type",
+    y = "Response (1-7)"
+  ) +
+  
+  theme(
+    legend.position = "none",
+  )
+#marginal_effects(Exp1, "WordType", categorical = TRUE)
+```
+
+##Exp 2 :: Plotting Code
+```{r}
+Exp2_Analysis |>
+  ggplot(aes(WordType, as.numeric(Rating))) +
+  geom_jitter(width = 0.3, height = 0.25, size = 0.75, alpha = 0.5) +
+  
+  geom_violin(alpha = 0.2, linewidth = 0.4, color = "black", fill = "red") +
+  
+  geom_boxplot(alpha = 0.2, width = 0.2, color = "black", fill = "green") +
+  
+  scale_y_continuous(
+    breaks = 1:7
+  ) +
+  
+  labs(
+    x = "Word Type",
+    y = "Response (1-7)"
+  ) +
+  
+  theme(
+    legend.position = "none",
+  )
