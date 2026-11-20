@@ -6,9 +6,12 @@ format: pdf
 ##Housekeeping
 ```{r}
 #| label: Housekeeping Code
+
+#Test push to GitHub
 library(brms)
 library(tidyverse)
 library(ggplot2)
+library(bayesplot)
 
 Exp1 <- read.table("data/Form-Based_FinalProj/Exp1.txt", header = TRUE)
 Exp2 <- read.table("data/Form-Based_FinalProj/Exp2.txt", header = TRUE)
