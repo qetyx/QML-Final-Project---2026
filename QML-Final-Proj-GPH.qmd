@@ -1,0 +1,57 @@
+---
+title: "QML-Final-Proj-GPH"
+format: html
+editor: source
+---
+
+## Set up 
+
+```{r}
+#| label: call packages
+
+
+library(tidyverse)
+library(brms)
+library(ggdist)
+library(tidybayes)
+library(posterior)
+```
+
+```{r}
+#| label: call data
+
+Exp1 <- read.table("QML-Final-Project/data/Form-Based_FinalProj/Exp1.txt")
+Exp2 <- read.table("QML-Final-Project/data/Form-Based_FinalProj/Exp2.txt")
+
+#I've called Experiment 1 but current code only deals with Experiment 2
+
+#changing default column names to match variables
+colnames(Exp2) <- c("Subject", "Item", "WordType", "Rating", "Accuracy", "Confusion")
+
+
+# Filter out "NA" lines and remove any items where subject misspelled the word, following Haslett and Cai's methodology
+Exp2_filt <- Exp2 |>
+  na.omit(Exp2) |>
+  filter(Accuracy == "1", Confusion == "0") |>
+  mutate(WordType = factor(WordType, levels = c("attractor", "target", "control")))
+  #Changed the WordType column to a factor so that order in charts will match that presented by the original paper
+```
+
+## Initial Initial Bits
+
+```{r}
+#| label: bar charts
+
+#Two bar charts to show initial Exp2 results - they show the same thing, was just playing around with different presentations
+
+Exp2_filt|>
+  ggplot(aes(WordType, fill = factor(Rating))) +
+  geom_bar(position = "fill") + 
+  scale_fill_brewer(palette = "Blues") 
+
+Exp2_filt |>
+  ggplot(aes(Rating)) +
+  geom_bar() +
+  facet_grid(cols = vars(WordType))
+```
+
