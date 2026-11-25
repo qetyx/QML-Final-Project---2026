@@ -3,32 +3,41 @@ title: "FinalProjWIPDoc"
 author: "MFJ"
 format: pdf
 ---
-
-##Edit Notes
-
-1\) I did a preliminary experiment with incorporating unequal variances into the brms model. I only did it for Experiment 2. So far, unless I did something wrong, I can't tell if there's any difference :\\
-
-2\) I took the draws, made a new pivoted tibble, and plotted the posterior probability distributions of each word type separated by Likert level. \[open question: why are there only 6 intercept values if there are 7 Likert levels? Do they represent the boundaries *between* levels?\]
-
-N.B. I changed the paths to match my PC. Also, my two cents right now is that the control and target do not look THAT meaningfully different from one another. For each Likert level, every target mean is a hair greater than each control mean, but their distributions have substantial overlap.
-
 ##Housekeeping
-
 ```{r}
 #| label: Housekeeping Code
-
 library(brms)
 library(tidyverse)
 library(ggplot2)
-library(bayesplot)
-library(ggdist)
 
-Exp1 <- read.table("data/proj_data/Exp1.txt", header = TRUE)
-Exp2 <- read.table("data/proj_data/Exp2.txt", header = TRUE)
+Exp1 <- read.table("../QML-2026/data/Form-Based_FinalProj/Exp1.txt", header = TRUE)
+Exp2 <- read.table("../QML-2026/data/Form-Based_FinalProj/Exp2.txt", header = TRUE)
+
+# Experiment two pulls more attention in our analysis as it is more comprehensive, building off of experiment one. Experiment two ensured that participants were familiar with the words beforehand, aiming to avoid any misreading of the target words
+```
+
+##Exp 1 Analysis Code
+```{r}
+Exp1$Response <- ordered(Exp1$Response, levels = 1:7)
+
+Exp1_bm <- brm(
+  formula = Response ~ WordType + (1 | Subject) + (1 | Item),
+  #Note the "(1 | ___) for Subject and Item denotes a random intercept for each participant and item, essentially grouping each participant's responses together. The intercepts are random as R calculates the intercept for each subject and item individually.
+  family = cumulative(link = "logit"),
+  data = Exp1,
+  seed = 1272,
+  file = "./data/Form-Based_FinalProj/Exp1_bm"
+)
+
+summary(Exp1_bm)
+
+pp_check(Exp1_bm)
+
+conditional_effects(Exp1_bm)
+#Note: Attractor is the reference category in WordType, so other values will be compared with it. In summary, because the other values are negative, sentences containing an Attractor word (words more iconically associated with the novel word) were more highly rated.
 ```
 
 ##Exp 2 Analysis Code
-
 ```{r}
 Exp2_Analysis <- Exp2 |>
   filter(Accuracy == 1, Confusion == 0)
@@ -36,15 +45,12 @@ Exp2_Analysis <- Exp2 |>
 Exp2_Analysis$Rating <- ordered(Exp2_Analysis$Rating, levels = 1:7)
 
 Exp2_bm <- brm(
-  formula = bf(Rating ~ WordType + (1 | Subject) + (1 | Item)) + lf(disc ~ 0 + WordType + (1 | Subject) + (1 | Item), cmc = FALSE),
+  formula = Rating ~ WordType + (1 | Subject) + (1 | Item),
   family = cumulative(link = "logit"),
   data = Exp2_Analysis,
   seed = 1272,
-  file = "code/cache/Exp2_bm_2"
+  file = "./data/Form-Based_FinalProj/Exp2_bm"
 )
-
-#"disc" is 1/sd, and must be positive
-#modified from code in bürkner-vuorre-2019
 
 summary(Exp2_bm)
 
@@ -53,54 +59,50 @@ pp_check(Exp2_bm)
 conditional_effects(Exp2_bm)
 ```
 
-##Exp 2 Posterior Draws
-
+##Exp 1 Plotting Code
 ```{r}
-Exp2_bm_draws <- as_draws_df(Exp2_bm)
-
-Exp2_bm_draws <- Exp2_bm_draws |> 
-  mutate(
-    attractor_1 = `b_Intercept[1]`,
-    control_1 = `b_Intercept[1]` + b_WordTypecontrol,
-    target_1 = `b_Intercept[1]` + b_WordTypetarget,
-    attractor_2 = `b_Intercept[2]`,
-    control_2 = `b_Intercept[2]` + b_WordTypecontrol,
-    target_2 = `b_Intercept[2]` + b_WordTypetarget,
-    attractor_3 = `b_Intercept[3]`,
-    control_3 = `b_Intercept[3]` + b_WordTypecontrol,
-    target_3 = `b_Intercept[3]` + b_WordTypetarget,
-    attractor_4 = `b_Intercept[4]`,
-    control_4 = `b_Intercept[4]` + b_WordTypecontrol,
-    target_4 = `b_Intercept[4]` + b_WordTypetarget,
-    attractor_5 = `b_Intercept[5]`,
-    control_5 = `b_Intercept[5]` + b_WordTypecontrol,
-    target_5 = `b_Intercept[5]` + b_WordTypetarget,
-    attractor_6 = `b_Intercept[6]`,
-    control_6 = `b_Intercept[6]` + b_WordTypecontrol,
-    target_6 = `b_Intercept[6]` + b_WordTypetarget,
-  )
-
-Exp2_bm_draws_long <- Exp2_bm_draws |> 
-  select(attractor_1:target_6) |> 
-  pivot_longer(everything(), names_to = "WordType", values_to = "epred")
-
-Exp2_bm_draws_long
-
-Exp2_bm_draws_long |>
-  ggplot(aes(epred, `WordType`)) +
-  stat_halfeye(.width = c(0.5, 0.95))
-```
-
-##Exp 2 Plotting Code
-
-```{r}
-Exp2_Analysis |> ggplot(aes(WordType, as.numeric(Rating))) + geom_jitter(width = 0.3, height = 0.25, size = 0.75, alpha = 0.5) +
+Exp1 |>
+  ggplot(aes(WordType, as.numeric(Response))) +
+  geom_jitter(width = 0.3, height = 0.25, size = 0.75, alpha = 0.5) +
   
   geom_violin(alpha = 0.2, linewidth = 0.4, color = "black", fill = "red") +
   
-  scale_y_continuous( breaks = 1:7 ) +
+  geom_boxplot(alpha = 0.2, width = 0.2, color = "black", fill = "green") +
   
-  labs( x = "Word Type", y = "Response (1-7)" ) +
+  scale_y_continuous(
+    breaks = 1:7
+  ) +
   
-  theme( legend.position = "none", )
+  labs(
+    x = "Word Type",
+    y = "Response (1-7)"
+  ) +
+  
+  theme(
+    legend.position = "none",
+  )
+#marginal_effects(Exp1, "WordType", categorical = TRUE)
 ```
+
+##Exp 2 :: Plotting Code
+```{r}
+Exp2_Analysis |>
+  ggplot(aes(WordType, as.numeric(Rating))) +
+  geom_jitter(width = 0.3, height = 0.25, size = 0.75, alpha = 0.5) +
+  
+  geom_violin(alpha = 0.2, linewidth = 0.4, color = "black", fill = "red") +
+  
+  geom_boxplot(alpha = 0.2, width = 0.2, color = "black", fill = "green") +
+  
+  scale_y_continuous(
+    breaks = 1:7
+  ) +
+  
+  labs(
+    x = "Word Type",
+    y = "Response (1-7)"
+  ) +
+  
+  theme(
+    legend.position = "none",
+  )
