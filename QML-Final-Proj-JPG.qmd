@@ -32,21 +32,16 @@ Exp2 <- read.table("data/proj_data/Exp2.txt", header = TRUE)
 Gaussian
 
 ```{r}
-Exp2_Analysis <- Exp2 |>
+Exp2_Analysis_1 <- Exp2 |>
   filter(Accuracy == 1, Confusion == 0)
 
-Exp2_Analysis$Rating <- ordered(Exp2_Analysis$Rating, levels = 1:7)
-
 Exp2_bm <- brm(
-  formula = bf(Rating ~ WordType + (1 | Subject) + (1 | Item)) + lf(disc ~ 0 + WordType + (1 | Subject) + (1 | Item), cmc = FALSE),
-  family = cumulative(link = "logit"),
-  data = Exp2_Analysis,
+  formula = Rating ~ WordType + (1 | Subject) + (1 | Item),
+  family = gaussian,
+  data = Exp2_Analysis_1,
   seed = 1272,
-  file = "code/cache/Exp2_bm_2"
+  file = "code/cache/Exp2_bm_3"
 )
-
-#"disc" is 1/sd, and must be positive
-#modified from code in bürkner-vuorre-2019
 
 summary(Exp2_bm)
 
@@ -58,15 +53,16 @@ conditional_effects(Exp2_bm)
 Cumulative
 
 ```{r}
-Exp2_Analysis <- Exp2 |>
+Exp2_Analysis_2 <- Exp2 |>
   filter(Accuracy == 1, Confusion == 0)
 
-Exp2_Analysis$Rating <- ordered(Exp2_Analysis$Rating, levels = 1:7)
+Exp2_Analysis_2$Rating <- ordered(Exp2_Analysis_2$Rating, levels = 1:7)
 
-Exp2_bm <- brm(
-  formula = bf(Rating ~ WordType + (1 | Subject) + (1 | Item)) + lf(disc ~ 0 + WordType + (1 | Subject) + (1 | Item), cmc = FALSE),
+Exp2_bm_cumul <- brm(
+  formula = bf(Rating ~ WordType + (1 | Subject) + (1 | Item)) #+ lf(disc ~ 0 + WordType + (1 | Subject) + (1 | Item), cmc = FALSE)
+    ,
   family = cumulative(link = "logit"),
-  data = Exp2_Analysis,
+  data = Exp2_Analysis_2,
   seed = 1272,
   file = "code/cache/Exp2_bm_2"
 )
@@ -74,11 +70,11 @@ Exp2_bm <- brm(
 #"disc" is 1/sd, and must be positive
 #modified from code in bürkner-vuorre-2019
 
-summary(Exp2_bm)
+summary(Exp2_bm_cumul)
 
-pp_check(Exp2_bm)
+pp_check(Exp2_bm_cumul)
 
-conditional_effects(Exp2_bm)
+conditional_effects(Exp2_bm_cumul)
 ```
 
 ##Exp 2 Posterior Draws \[defunct\]
