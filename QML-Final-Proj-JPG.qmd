@@ -29,6 +29,8 @@ Exp2 <- read.table("data/proj_data/Exp2.txt", header = TRUE)
 
 ##Exp 2 Analysis Code
 
+Gaussian
+
 ```{r}
 Exp2_Analysis <- Exp2 |>
   filter(Accuracy == 1, Confusion == 0)
@@ -53,7 +55,33 @@ pp_check(Exp2_bm)
 conditional_effects(Exp2_bm)
 ```
 
-##Exp 2 Posterior Draws
+Cumulative
+
+```{r}
+Exp2_Analysis <- Exp2 |>
+  filter(Accuracy == 1, Confusion == 0)
+
+Exp2_Analysis$Rating <- ordered(Exp2_Analysis$Rating, levels = 1:7)
+
+Exp2_bm <- brm(
+  formula = bf(Rating ~ WordType + (1 | Subject) + (1 | Item)) + lf(disc ~ 0 + WordType + (1 | Subject) + (1 | Item), cmc = FALSE),
+  family = cumulative(link = "logit"),
+  data = Exp2_Analysis,
+  seed = 1272,
+  file = "code/cache/Exp2_bm_2"
+)
+
+#"disc" is 1/sd, and must be positive
+#modified from code in bürkner-vuorre-2019
+
+summary(Exp2_bm)
+
+pp_check(Exp2_bm)
+
+conditional_effects(Exp2_bm)
+```
+
+##Exp 2 Posterior Draws \[defunct\]
 
 ```{r}
 Exp2_bm_draws <- as_draws_df(Exp2_bm)
