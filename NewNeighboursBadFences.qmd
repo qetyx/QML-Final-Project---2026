@@ -1,0 +1,23 @@
+---
+title: "NewNeighboursBadFences"
+format: pdf
+---
+##Housekeeping Code
+```{r}
+#| label: The Code
+
+library(brms)
+library(tidyverse)
+library(ggplot2)
+library(bayesplot)
+library(ggdist)
+library(posterior)
+
+Exp1 <- read.table("../QML-2026/data/Form-Based_FinalProj/Exp1.txt", header = TRUE)
+Exp2 <- read.table("../QML-2026/data/Form-Based_FinalProj/Exp2.txt", header = TRUE)
+```
+
+```{r}
+#| label:
+```
+
