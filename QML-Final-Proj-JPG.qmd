@@ -6,11 +6,7 @@ format: pdf
 
 ##Edit Notes
 
-1\) I did a preliminary experiment with incorporating unequal variances into the brms model. I only did it for Experiment 2. So far, unless I did something wrong, I can't tell if there's any difference :\\
-
-2\) I took the draws, made a new pivoted tibble, and plotted the posterior probability distributions of each word type separated by Likert level. \[open question: why are there only 6 intercept values if there are 7 Likert levels? Do they represent the boundaries *between* levels?\]
-
-N.B. I changed the paths to match my PC. Also, my two cents right now is that the control and target do not look THAT meaningfully different from one another. For each Likert level, every target mean is a hair greater than each control mean, but their distributions have substantial overlap.
+N.B. My two cents right now is that the control and target do not look THAT meaningfully different from one another. For each Likert level, every target mean is a hair greater than each control mean, but their distributions have substantial overlap.
 
 ##Housekeeping
 
