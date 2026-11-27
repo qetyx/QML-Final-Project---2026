@@ -4,8 +4,6 @@ author: "JPG"
 format: pdf
 ---
 
-##Edit Notes
-
 N.B. My two cents right now is that the control and target do not look THAT meaningfully different from one another. For each Likert level, every target mean is a hair greater than each control mean, but their distributions have substantial overlap.
 
 ##Housekeeping
