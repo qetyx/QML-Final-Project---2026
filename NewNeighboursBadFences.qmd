@@ -4,7 +4,7 @@ format: pdf
 ---
 ##Housekeeping Code
 ```{r}
-#| label: The Code
+#| label: Package Loading Bay
 
 library(brms)
 library(tidyverse)
@@ -12,12 +12,212 @@ library(ggplot2)
 library(bayesplot)
 library(ggdist)
 library(posterior)
+library(scales)
+```
+
+```{r}
+#| label: Data Pull
 
 Exp1 <- read.table("../QML-2026/data/Form-Based_FinalProj/Exp1.txt", header = TRUE)
 Exp2 <- read.table("../QML-2026/data/Form-Based_FinalProj/Exp2.txt", header = TRUE)
 ```
 
 ```{r}
-#| label:
+#| label: Factor for Exp1
+
+Exp1_Factor <- Exp1 |>
+  mutate(WordType = factor(WordType, levels = c("attractor", "target", "control", "implied")))
 ```
 
+```{r}
+#| label: Factor and Filter for Exp2
+
+Exp2_Filt <- Exp2 |>
+  filter(Accuracy == 1, Confusion == 0) |>
+  mutate(WordType = factor(WordType, levels = c("attractor", "target", "control")))
+```
+
+##Preliminary Plotting
+```{r}
+#| label: Experiment 1.1 Plotting Code
+
+#Scatter and Violin plot
+Exp1_Factor |>
+  ggplot(aes(WordType, as.numeric(Response))) +
+  
+  geom_jitter(width = 0.3, height = 0.25, size = 0.75, alpha = 0.5) +
+  
+  geom_violin(alpha = 0.2, linewidth = 0.4, color = "black", fill = "red") +
+  
+  scale_y_continuous(
+    breaks = 1:7
+  ) +
+  
+  labs(
+    x = "Word Type",
+    y = "Response (1-7)"
+  ) +
+  
+  theme(
+    legend.position = "none",
+  )
+
+#Bar chart
+Exp1_Factor |>
+  ggplot(aes(WordType, fill = factor(Response))) +
+  
+  geom_bar(position = "fill") + 
+  
+  scale_fill_brewer(palette = "Blues") +
+  
+   scale_y_continuous(
+    breaks = 1:7
+  ) +
+  
+  scale_y_reverse() +
+  
+  labs(
+    x = "Word Type",
+    y = "Response (1-7)",
+    fill = "Reponse"
+  ) +
+  
+  guides(fill = guide_legend(reverse = T)) +
+  
+  theme(
+    axis.text.y = element_blank(),
+    axis.ticks.y = element_blank()
+  )
+```
+
+```{r}
+#| label: Experiment 1.2 Plotting Code
+
+#Scatter and Violin plot
+Exp1_Factor |>
+  ggplot(aes(WordType, as.numeric(Response))) +
+  
+  geom_jitter(width = 0.3, height = 0.25, size = 0.75, alpha = 0.5) +
+  
+  geom_violin(alpha = 0.2, linewidth = 0.4, color = "black", fill = "red") +
+  
+  scale_y_continuous(
+    breaks = 1:7
+  ) +
+  
+  labs(
+    x = "Word Type",
+    y = "Response (1-7)"
+  ) +
+  
+  theme(
+    legend.position = "none",
+  ) +
+  
+  coord_flip()
+
+#Bar chart
+Exp1_Factor |>
+  ggplot(aes(WordType, fill = factor(Response))) +
+  
+  geom_bar(position = "fill") + 
+  
+  scale_fill_brewer(palette = "Blues") +
+  
+   scale_y_continuous(
+    breaks = 1:7
+  ) +
+  
+  scale_y_reverse() +
+  
+  labs(
+    x = "Word Type",
+    y = "Response (1-7)",
+    fill = "Rating"
+  ) +
+  
+  guides(fill = guide_legend(reverse = T)) +
+  
+   theme(
+     axis.text.x = element_blank(),
+     axis.ticks.x = element_blank()
+   ) +
+  
+  coord_flip()
+
+#Divergent Stacked Bar chart
+#Exp2_Filt |>
+#  ggplot(aes(WordType, Rating)) +
+#  geom_bar(stat = "identity", show.legend = FALSE) +
+#  labs(
+#    x = "Word Type",
+#    y = "Response (1-7)"
+#  ) +
+#  coord_flip()
+```
+
+```{r}
+#| label: Experiment 2 Plotting Code
+
+#Scatter and Violin plot
+Exp2_Filt |>
+  ggplot(aes(WordType, as.numeric(Rating))) +
+  
+  geom_jitter(width = 0.3, height = 0.25, size = 0.75, alpha = 0.5) +
+  
+  geom_violin(alpha = 0.2, linewidth = 0.4, color = "black", fill = "red") +
+  
+  scale_y_continuous(
+    breaks = 1:7
+  ) +
+  
+  labs(
+    x = "Word Type",
+    y = "Response (1-7)"
+  ) +
+  
+  theme(
+    legend.position = "none",
+  ) +
+  
+  coord_flip()
+
+#Bar chart
+Exp2_Filt |>
+  ggplot(aes(WordType, fill = factor(Rating))) +
+  
+  geom_bar(position = "fill") + 
+  
+  scale_fill_brewer(palette = "Blues") +
+  
+   scale_y_continuous(
+    breaks = 1:7
+  ) +
+  
+  scale_y_reverse() +
+  
+  labs(
+    x = "Word Type",
+    y = "Response (1-7)",
+    fill = "Rating"
+  ) +
+  
+  guides(fill = guide_legend(reverse = T)) +
+  
+   theme(
+     axis.text.x = element_blank(),
+     axis.ticks.x = element_blank()
+   ) +
+  
+  coord_flip()
+
+#Divergent Stacked Bar chart
+#Exp2_Filt |>
+#  ggplot(aes(WordType, Rating)) +
+#  geom_bar(stat = "identity", show.legend = FALSE) +
+#  labs(
+#    x = "Word Type",
+#    y = "Response (1-7)"
+#  ) +
+#  coord_flip()
+```
